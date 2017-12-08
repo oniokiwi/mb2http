@@ -1,11 +1,17 @@
 # mb2http 
 
-This is a modbus simulator, programmed to replicate the behaviour of an NEC "AEROS" battery controller. 
-The unit we are interested in was at the Northern Power Grid's ("NPG") Rise Carr site, controlling a 2.5 MW battery.
+This project is used to convert modbus messages to http. The project has dependencies on libmodbus and libcurl 
+The project supports command line argument for the destination IP address and port number.
 
+In order to see list of argument supported see the help by issuing the following command
 
-To Build the simulator simply run the following comand in the current directory.
+$ ./mb2http -h
+
+To build simply clone and build using the command below 
 $ make 
+
+To clean the project issue the following command 
+$ make clean
 
 To enable watchdog support on the executable run the following command to a cron timer job
 $ make cronjobstart
