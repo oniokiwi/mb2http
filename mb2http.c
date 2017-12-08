@@ -6,6 +6,8 @@
 #include <time.h>
 #include <curl/curl.h>
 
+#define MAX_PATH 1024
+
 // Private data
 static CURL* curl;
 static modbus_mapping_t *mb_mapping;
@@ -16,10 +18,11 @@ static const int lsbAddressIndex = 9;
 static const int msbDataIndex = 10;
 static const int lsbDataIndex = 11;
 
-static int stateOfCharge                        = 50;
+static const char soc_log_path[]   = "/workspace/mb2http/soc.log";
+static int stateOfCharge           = 500; // default state of charge set to 50%
 
 static char url[128] = {0}; // "http://192.168.1.66:1880/powerToDeliverkW";
-
+static char filename[MAX_PATH];
 static char ipaddress[16];
 static int  port;
 
@@ -44,9 +47,7 @@ long long current_timestamp()
 int getStateOfCharge()
 {
     FILE *fp;
-    const char* filename = "./soc.log";
-
-    fp = fopen ( filename, "r");
+    fp = fopen ( filename, "r");  // ../soc.log
     if ( fp )
     {
         fscanf(fp,"%d", &stateOfCharge);
@@ -154,6 +155,18 @@ void process_handler(uint8_t* pdata, int code)
 //
 void set_module_parameters(modbus_t *context, modbus_mapping_t* mapping, const char* ipaddr, int port_number)
 {
+    FILE *fp;
+    char path[MAX_PATH];
+
+    fp = popen("echo $HOME", "r");
+    if (fp != NULL)
+    {
+        while (fgets(path, PATH_MAX, fp) != NULL)
+        ;
+        path[strlen(path) - 1] = '\0';
+        sprintf(filename,"%s%s", path, soc_log_path); // build the path to the soc file
+        pclose(fp);
+    }
     curl = curl_easy_init();
     strcpy(ipaddress, ipaddr);
     port = port_number;

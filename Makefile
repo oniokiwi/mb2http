@@ -37,6 +37,7 @@ check:
 	@echo '#############################'
 	
 cronjobstart:
+	echo  "* * * * * ${HOME}/workspace/mb2http/mbWatchDog" > cronjob.txt
 	crontab -u ${USER} cronjob.txt
 
 cronjobstop:
