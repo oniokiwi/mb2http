@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export LD_LIBRARY_PATH=/usr/local/lib
+
 id="0"
 
 
@@ -8,13 +10,13 @@ check_process_running()
     id=`pgrep mb2http`
     echo ${id}
 }
- 
+
 entry()
 {
     check_process_running
     if [ -z $id ] ; then
-        ${HOME}/workspace/mb2http/mb2http 
-    fi 
+        ${HOME}/workspace/mb2http/mb2http
+    fi
 }
 
 # check if process running and if not running restart it.
