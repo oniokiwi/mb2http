@@ -99,7 +99,7 @@ int process_RealPowerSetPoint(uint8_t* pval)
         sprintf(power_buf,"%d", power);
     }
     headers = curl_slist_append(headers, "Content-Type: text/plain; charset=UTF-8");
-    sprintf(url, "http://%s:%d/powerToDeliverkW/%s", ipaddress, port, power_buf); // "http://192.168.1.66:1880/powerToDeliverkW";
+    sprintf(url, "http://%s:%d/powerToDeliver/%s", ipaddress, port, power_buf); // "http://192.168.1.66:1880/powerToDeliver";
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
 
