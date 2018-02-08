@@ -42,7 +42,7 @@ int usage(int argc, char** argv)
     printf("Usage:\n");
     printf("%s [option <value>] [option <value:number-bits>] [option <value:number_registers>] ...\n", argv[0]);
     printf("\nOptions:\n");
-    printf(" -m | --modbus port\t\t\t # Set Modbus port to listen on for incoming requests (Default 502)\n");
+    printf(" -m | --modbus port\t\t\t # Set Modbus port to listen on for incoming requests (Default 1502)\n");
 	printf(" -a | --HTTPDestinationIPAddress\t # The HTTP port destination address (Default %s)\n", HTTP_DEFAULT_DESTINATION_IP_ADDR);
 	printf(" -p | --HTTPDestinationPort\t\t # The HTTP port destination number (Default %d)\n",HTTP_DEFAULT_DESTINATION_PORT);
     printf(" -h | --help\t\t\t\t # Print this help menu\n");

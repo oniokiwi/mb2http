@@ -42,13 +42,23 @@ int main(int argc, char*argv[])
         HTTP_DEFAULT_DESTINATION_IP_ADDR,
 		HTTP_DEFAULT_DESTINATION_PORT
     };
+
+    setvbuf(stdout, NULL, _IONBF, 0);                          // disable stdout buffering
+    rc = get_optarguments(argc, argv, &args);
+    if ( rc < OPTARG_SUCCESS )
+    {
+        usage(argc, argv);
+    }
     printf("mb2http arguments...\n");
     printf("port:%d HTTP destination IP address %s HTTP destination Port %d\n",
                     args.port, args.http_destination_ipaddress,   args.http_destination_port);
-
+    ctx = modbus_new_tcp(NULL, args.port);
     for (;;)
     {
-        ctx = modbus_new_tcp(NULL, args.port);
+
+        modbus_set_response_timeout(ctx, tv_sec,tv_usec);
+        modbus_set_debug(ctx, TRUE);
+
         if ( initialised == FALSE )
         {
             mb_mapping = modbus_mapping_new_start_address(
