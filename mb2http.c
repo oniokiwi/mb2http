@@ -174,7 +174,7 @@ void set_module_parameters(modbus_t *context, modbus_mapping_t* mapping, const c
     ctx = context;
 }
 
-void tear_down()
+void close_module()
 {
     if (curl)
     {

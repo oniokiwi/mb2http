@@ -22,18 +22,18 @@
 #define MODBUS_DEFAULT_PORT 1502
 #define TCP                 0
 
+
 static uint8_t query[MODBUS_TCP_MAX_ADU_LENGTH];
 
 int main(int argc, char*argv[])
 {
+	void close_module();
     modbus_t *ctx;
     modbus_mapping_t *mb_mapping;
     int s = -1;
-    int rc,exception;
+    int rc;
     bool initialised = FALSE;
     bool done = FALSE;
-    uint32_t tv_sec = 60;
-    uint32_t tv_usec = 0;
     setvbuf(stdout, NULL, _IONBF, 0);                          // disable stdout buffering
 
     optargs_t args =
@@ -52,11 +52,10 @@ int main(int argc, char*argv[])
     printf("mb2http arguments...\n");
     printf("port:%d HTTP destination IP address %s HTTP destination Port %d\n",
                     args.port, args.http_destination_ipaddress,   args.http_destination_port);
-    ctx = modbus_new_tcp(NULL, args.port);
+
     for (;;)
     {
-
-        modbus_set_response_timeout(ctx, tv_sec,tv_usec);
+        ctx = modbus_new_tcp(NULL, args.port);
         modbus_set_debug(ctx, TRUE);
 
         if ( initialised == FALSE )
@@ -89,6 +88,9 @@ int main(int argc, char*argv[])
             case -1:
                 close(s); // close the socket
                 modbus_close(ctx);
+                modbus_free(ctx);
+                close_module();
+                ctx = NULL;
                 done = TRUE;
                 break;
 
@@ -102,8 +104,6 @@ int main(int argc, char*argv[])
             }
         }
     } // for (;;)
-    modbus_free(ctx);
     modbus_mapping_free(mb_mapping);     // out of the loop to maintain register values
-
     return 0;
 }
