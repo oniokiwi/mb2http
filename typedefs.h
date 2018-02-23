@@ -5,53 +5,77 @@
 #ifndef TYPEDEFS_DOT_H
 #define TYPEDEFS_DOT_H
 
+
 #include <modbus/modbus.h>
-#include <stdbool.h>
+#include "queue.h"
+
+//typedef enum {false, true} bool;
 
 #define MODBUS_SUCCESS  0
-#define MAX_IP_ADDR  16
 
-// HTTP destination networking info
-#define HTTP_DEFAULT_DESTINATION_PORT      1880
-#define HTTP_DEFAULT_DESTINATION_IP_ADDR  "192.168.1.66"
+typedef enum CURL_MESSAGE_TYPE
+{
+	CURL_PLAIN_TEXT = 100,
+	CURL_APPLICATION_JSON
+}curl_message_type_t;
 
-// HTTP source networking info
-#define HTTP_DEFAULT_SOURCE_PORT           1902
+typedef struct process_table_struct
+{
+	uint16_t address;
+	int (*handler)(uint16_t, uint16_t);
+}process_table_t;
 
 
 typedef struct optargs_struct
 {
-    unsigned int port;                                       // port number for modbus server to listen
-    char         http_destination_ipaddress[MAX_IP_ADDR];    // HTTP destination ip address
-    unsigned int http_destination_port;                      // HTTP destination port number
+    unsigned int port;                           // port number for modbus server to listen
+    unsigned int HoldingRegisters;               // Read - Write registers
+    unsigned int NumberHoldingRegisters;         // Number of read - write registers
 }optargs_t;
 
 
-typedef struct thread_params_struct
+typedef struct mhttpd_thread_param_struct
 {
     modbus_t *ctx;
-    modbus_mapping_t* mb_mapping;
-    unsigned char *terminate;
-    int  port;
-}thread_param_t;
+	modbus_mapping_t* mb_mapping;
+	pthread_mutex_t* mutex;
+	uint8_t *terminate;
+}mhttpd_thread_param_t;
 
-typedef struct post_data
+typedef struct curl_thread_param_struct
 {
-    bool status;
+	uint8_t *terminate;
+	char powerToDeliverURL[128];                // powerToDeliverURL = ipaddress:port
+	char submitReadingsURL[128];               // submitReadingsURL = ipaddress/endpoint
+}curl_thread_param_t;
+
+typedef struct mbap_header_struct
+{
+	uint16_t transport_id;
+	uint16_t protocol_id;
+	uint16_t length;
+	uint8_t  unit_id;
+}__attribute__((packed))mbap_header_t;
+
+typedef struct modbus_pdu_struct
+{
+    mbap_header_t mbap;
+	uint8_t  fcode;
+	uint8_t  data[];
+}__attribute__((packed))modbus_pdu_t;
+
+typedef struct
+{
+    char status;
     char *buff;
-    int len;
 }post_data_t;
 
-typedef struct process_table_struct
+typedef struct curl_data_struct
 {
-    uint16_t address;
-    int (*handler)(uint8_t*);
-}process_table_t;
-
-typedef struct process_endpoint_struct
-{
-    const char* endpoint;
-    void (*handler)(const char *);
-} process_endpoint_t;
+	link_t link;
+	curl_message_type_t type;
+	int length;
+	char* payload;
+}queue_item_t;
 
 #endif

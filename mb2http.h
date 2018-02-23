@@ -3,21 +3,24 @@
  *
  * Header file to simulate battery charge/discharge profile
  */
-#ifndef MB2HTTP_DOT_H
-#define MB2HTTP_DOT_H
+#ifndef BATTSIM_DOT_H
+#define BATTSIM_DOT_H
 
 #include <stdint.h>
 #include <modbus/modbus.h>
+#include "typedefs.h"
 
-#define RealPowerSetPoint             1
-#define ReadStateOfCharge             2
+#define EMPTY_PAGE ""
 
+#define StateOfCharge      1
+#define PowerToDeliver     2
+
+int process_multiple_registers(uint16_t start_address, uint16_t quantity, uint8_t* pdata);
+int  process_handler(uint16_t, uint16_t);
+int process_query(modbus_pdu_t*);
+void *microhttpd_handler( void *ptr );
 // proclet
-int process_RealPowerSetPoint( uint8_t* );
-int process_ReadStateOfCharge( uint8_t* );
-
-void process_handler(uint8_t *, int code);
-void set_module_parameters(modbus_t *context, modbus_mapping_t* mapping, const char* ipaddr, int port_number);
-void tear_down();
+int process_getStateOfCharge ();
+int process_setPowerToDeliver (uint16_t );
 
 #endif

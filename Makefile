@@ -1,28 +1,35 @@
-# Make file for mb2http - Modbus to HTTP converter
+#IDIR =../../../../libmodbus/src
+IDIR=../libmodbus/src
+LDIR=/usr/local/lib
+
+
 TARGET=mb2http
 CC=gcc
-CFLAGS=-I/usr/local/include -L/usr/local/lib -g -std=gnu99
+#CFLAGS=-I$(IDIR) -L$(LDIR) -g -std=gnu99
+CFLAGS= -g -I/usr/local/include -I/usr/include/json-c/ -L/usr/local/lib
 
 .PHONY: default all clean check cron
 
 default: $(TARGET)
 all: default
 
-SRC_C=mb2http.c \
-     parseargs.c \
-     main.c
-	 
-HDR=mb2http.h \
-    parseargs.h \
-    main.h \
-    typedefs.h 
+SRC_C=main.c \
+    mb2http.c \
+    curl_handler.c \
+    queue.c
 
-LIBS=-lpthread -lmodbus -lcurl
+HDR=typedef.h \
+    mb2http.h \
+    curl_handler.h \
+    queue.h
+    
 
-DEPS = $(patsubst %,$(IDIR)/%,$(HDR))
-OBJ = $(patsubst %.c,%.o,$(SRC_C))
+LIBS=-lpthread -lmodbus -lmicrohttpd -ljson -lcurl
 
-%.o: %.c $(DEPS)
+#DEPS = $(patsubst %,$(IDIR)/%,$(HDR))
+OBJ=$(patsubst %.c,%.o,$(SRC_C))
+
+%.o: %.c $(HDR)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(TARGET): $(OBJ)
@@ -33,15 +40,8 @@ check:
 	@echo ' SRC_C  = $(SRC_C)           '
 	@echo ' OBJ    = $(OBJ)             '
 	@echo ' HDR    = $(HDR)             '
-	@echo ' DEPS   = $(DEPS)            '
 	@echo '#############################'
 	
-cronjobstart:
-	echo  "* * * * * ${HOME}/workspace/mb2http/mbWatchDog" > cronjob.txt
-	crontab -u ${USER} cronjob.txt
-
-cronjobstop:
-	crontab -u ${USER} -r
 
 clean:
 	rm -f *.o $(TARGET) 
