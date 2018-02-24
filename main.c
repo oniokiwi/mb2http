@@ -89,7 +89,7 @@ void init()
 int main(int argc, char*argv[])
 {
     modbus_t *ctx;
-    int retval, rc, opt, s = -1, port = MODBUS_DEFAULT_PORT;
+    int rc, opt, s = -1, port = MODBUS_DEFAULT_PORT;
     bool done = FALSE;
 
     printf("%s - entering handler thread TID %d\n", __PRETTY_FUNCTION__, (pid_t)syscall(SYS_gettid));
@@ -102,10 +102,10 @@ int main(int argc, char*argv[])
             port = atoi(optarg);
             break;
         case 'u':
-        	strncpy(powerToDeliverURL, optarg, strlen(optarg));
+            strncpy(powerToDeliverURL, optarg, strlen(optarg));
             break;
         case 'k':
-        	strncpy(submitReadingsURL, optarg, strlen(optarg));
+            strncpy(submitReadingsURL, optarg, strlen(optarg));
             break;
 
         default:
@@ -145,12 +145,10 @@ int main(int argc, char*argv[])
                 break;
 
             default:
-            	//mb = (modbus_pdu_t*) query;
-                retval = process_query((modbus_pdu_t*) query);
-                if ( retval == MODBUS_SUCCESS)
+                if (process_query((modbus_pdu_t*) query) == MODBUS_SUCCESS)
                     modbus_reply(ctx, query, rc, mb_mapping);
                 else
-                	modbus_reply_exception(ctx, query, rc);
+                    modbus_reply_exception(ctx, query, rc);
                 continue;
             }
         }

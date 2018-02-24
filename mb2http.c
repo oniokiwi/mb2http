@@ -16,11 +16,6 @@
      License along with this library; if not, write to the Free Software
      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-/**
- * @file minimal_example.c
- * @brief minimal example for how to use libmicrohttpd
- * @author Christian Grothoff
- */
 
 #include <sys/types.h>
 #include <sys/select.h>
@@ -41,21 +36,6 @@
 // Private data
 static modbus_mapping_t *mb_mapping;
 static unsigned short stateOfCharge;
-
-static char page[1024];
-static int count = 0;
-
- const char *get_page()
- {
-     sprintf(page,
-         "<html> " \
-         "<pre>" \
-             "<body>  \t\t\t\t <b>analogue output segment:</b> 0x%04X\n</body>" \
-         "</pre>" \
-         "</html>", count);
-     return page;
- }
-
 
 int process_getStateOfCharge ()
 {
@@ -158,7 +138,7 @@ static int ahc_echo(void * cls,
     }
     else
     {
-    	static int length = 0;
+        static int length = 0;
         if(*upload_data_size != 0)
         {
             length = *upload_data_size + 1;         // add space for null character
@@ -171,7 +151,7 @@ static int ahc_echo(void * cls,
         }
         else
         {
-            //printf("%s %s\n",__PRETTY_FUNCTION__, post->buff);
+            printf("%s %s\n",__PRETTY_FUNCTION__, post->buff);
             parse_json((const char*)post->buff);
             curl_sendReadings((const char*)post->buff, length);
             free(post->buff);
@@ -179,7 +159,7 @@ static int ahc_echo(void * cls,
     }
     if(post != NULL)
     {
-    	free(post);
+        free(post);
     }
     response = MHD_create_response_from_buffer (0, NULL,MHD_RESPMEM_PERSISTENT);
     ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
@@ -202,7 +182,7 @@ int  process_handler(uint16_t address, uint16_t data)
         break;
 
     case PowerToDeliver:
-    	process_setPowerToDeliver(data);
+        process_setPowerToDeliver(data);
         break;
     }
 
@@ -254,21 +234,21 @@ int process_query(modbus_pdu_t* mb)
     fc = mb->fcode;
     switch ( fc ){
     case MODBUS_FC_READ_HOLDING_REGISTERS:
-        //printf("%s MODBUS_FC_READ_HOLDING_REGISTERS\n", __PRETTY_FUNCTION__);
+        printf("%s MODBUS_FC_READ_HOLDING_REGISTERS\n", __PRETTY_FUNCTION__);
         address = (mb->data[i++] * convert_bytes2word_value) + mb->data[i++]; // address
         value   = (mb->data[i++] * convert_bytes2word_value) + mb->data[i++]; // data
         retval  = process_handler(address, value);
         break;
 
     case MODBUS_FC_WRITE_SINGLE_REGISTER:
-        //printf("%s MODBUS_FC_WRITE_SINGLE_REGISTER\n", __PRETTY_FUNCTION__);
+        printf("%s MODBUS_FC_WRITE_SINGLE_REGISTER\n", __PRETTY_FUNCTION__);
         address = (mb->data[i++] * convert_bytes2word_value) + mb->data[i++]; // address
         value   = (mb->data[i++] * convert_bytes2word_value) + mb->data[i++]; // data
         retval  = process_handler(address, value);
         break;
 
     case MODBUS_FC_WRITE_MULTIPLE_REGISTERS:
-        //printf("%s MODBUS_FC_WRITE_MULTIPLE_REGISTERS\n", __PRETTY_FUNCTION__);
+        printf("%s MODBUS_FC_WRITE_MULTIPLE_REGISTERS\n", __PRETTY_FUNCTION__);
         address = (mb->data[i++] * convert_bytes2word_value) + mb->data[i++]; // address
         count = (mb->data[i++] * convert_bytes2word_value) + mb->data[i++];   // register count
         i++;                                             // skip over byte count
@@ -277,7 +257,7 @@ int process_query(modbus_pdu_t* mb)
         break;
 
     case MODBUS_FC_WRITE_AND_READ_REGISTERS:
-        //printf("%s MODBUS_FC_WRITE_AND_READ_REGISTERS\n", __PRETTY_FUNCTION__);
+        printf("%s MODBUS_FC_WRITE_AND_READ_REGISTERS\n", __PRETTY_FUNCTION__);
         address = (mb->data[i++] * convert_bytes2word_value) + mb->data[i++]; // address
         value   = (mb->data[i++] * convert_bytes2word_value) + mb->data[i++]; // data
         retval  = process_handler(address, value);

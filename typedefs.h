@@ -15,14 +15,14 @@
 
 typedef enum CURL_MESSAGE_TYPE
 {
-	CURL_PLAIN_TEXT = 100,
-	CURL_APPLICATION_JSON
+    CURL_PLAIN_TEXT = 100,
+    CURL_APPLICATION_JSON
 }curl_message_type_t;
 
 typedef struct process_table_struct
 {
-	uint16_t address;
-	int (*handler)(uint16_t, uint16_t);
+    uint16_t address;
+    int (*handler)(uint16_t, uint16_t);
 }process_table_t;
 
 
@@ -37,31 +37,31 @@ typedef struct optargs_struct
 typedef struct mhttpd_thread_param_struct
 {
     modbus_t *ctx;
-	modbus_mapping_t* mb_mapping;
-	pthread_mutex_t* mutex;
-	uint8_t *terminate;
+    modbus_mapping_t* mb_mapping;
+    pthread_mutex_t* mutex;
+    uint8_t *terminate;
 }mhttpd_thread_param_t;
 
 typedef struct curl_thread_param_struct
 {
-	uint8_t *terminate;
-	char powerToDeliverURL[128];                // powerToDeliverURL = ipaddress:port
-	char submitReadingsURL[128];               // submitReadingsURL = ipaddress/endpoint
+    uint8_t *terminate;
+    char powerToDeliverURL[128];                // powerToDeliverURL = ipaddress:port
+    char submitReadingsURL[128];               // submitReadingsURL = ipaddress/endpoint
 }curl_thread_param_t;
 
 typedef struct mbap_header_struct
 {
-	uint16_t transport_id;
-	uint16_t protocol_id;
-	uint16_t length;
-	uint8_t  unit_id;
+    uint16_t transport_id;
+    uint16_t protocol_id;
+    uint16_t length;
+    uint8_t  unit_id;
 }__attribute__((packed))mbap_header_t;
 
 typedef struct modbus_pdu_struct
 {
     mbap_header_t mbap;
-	uint8_t  fcode;
-	uint8_t  data[];
+    uint8_t  fcode;
+    uint8_t  data[];
 }__attribute__((packed))modbus_pdu_t;
 
 typedef struct
@@ -72,10 +72,10 @@ typedef struct
 
 typedef struct curl_data_struct
 {
-	link_t link;
-	curl_message_type_t type;
-	int length;
-	char* payload;
+    link_t link;
+    curl_message_type_t type;
+    int length;
+    char* payload;
 }queue_item_t;
 
 #endif
