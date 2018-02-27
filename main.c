@@ -64,11 +64,6 @@ void init()
         printf("Failed to allocate the mapping: %s\n", modbus_strerror(errno));
         exit(1); // all bets are off
     }
-
-    // setup some default values
-    strcpy(powerToDeliverURL, POWER_TO_DELIVER_URL_DEFAULT);
-    strcpy(submitReadingsURL, SUBMIT_READINGS_URL_DEFAULT);
-
     setvbuf(stdout, NULL, _IONBF, 0);                          // disable stdout buffering
     terminate1 = FALSE;
     mhttpd_thread_param = malloc(sizeof (mhttpd_thread_param_t));
@@ -94,7 +89,10 @@ int main(int argc, char*argv[])
 
     printf("%s - entering handler thread TID %d\n", __PRETTY_FUNCTION__, (pid_t)syscall(SYS_gettid));
 
-    init();
+    // setup some default URL's values
+    strcpy(powerToDeliverURL, POWER_TO_DELIVER_URL_DEFAULT);
+    strcpy(submitReadingsURL, SUBMIT_READINGS_URL_DEFAULT);
+
     while ((opt = getopt(argc, argv, "p:u:k:")) != -1)
     {
         switch (opt) {
@@ -102,16 +100,19 @@ int main(int argc, char*argv[])
             port = atoi(optarg);
             break;
         case 'u':
-            strncpy(powerToDeliverURL, optarg, strlen(optarg));
+        	strncpy(powerToDeliverURL, optarg, strlen(optarg));
             break;
         case 'k':
-            strncpy(submitReadingsURL, optarg, strlen(optarg));
+        	strncpy(submitReadingsURL, optarg, strlen(optarg));
+        	printf("submitReadingsURL %s\n", submitReadingsURL);
             break;
 
         default:
             usage(*argv);
         }
     }
+    init();
+
     printf("Test application - port (%d)\n", port);
 
     for (;;)
@@ -148,7 +149,7 @@ int main(int argc, char*argv[])
                 if (process_query((modbus_pdu_t*) query) == MODBUS_SUCCESS)
                     modbus_reply(ctx, query, rc, mb_mapping);
                 else
-                    modbus_reply_exception(ctx, query, rc);
+                	modbus_reply_exception(ctx, query, rc);
                 continue;
             }
         }

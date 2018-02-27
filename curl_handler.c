@@ -92,7 +92,8 @@ void _send_text_plain(const char* payload)
         char buf[payloadLength];
         sprintf(buf, "%s%s", powerURL, payload);
         printf("payload to send: %s\n", buf );
-        headers = curl_slist_append(headers, "Content-Type: text/plain; charset=UTF-8");
+		curl_slist_append(headers, "Content-Type: text/plain");
+		curl_slist_append(headers, "charsets: utf-8");
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_URL, buf);
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
@@ -105,19 +106,23 @@ void _send_text_plain(const char* payload)
 
 void _send_application_json(const char* payload, int length)
 {
-    struct curl_slist *headers = NULL;
-    curl = curl_easy_init();
+	struct curl_slist *headers = NULL;
+	curl = curl_easy_init();
 
     if (curl)
     {
-        headers = curl_slist_append(headers, "Content-Type: application/json");
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)length);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload);
-        curl_easy_setopt(curl, CURLOPT_URL, readingsURL);
-        printf("payload to send: %s - %s\n", readingsURL, payload );
-        curl_easy_perform(curl);
-        curl_slist_free_all(headers);
+		curl_slist_append(headers, "Accept: application/json");
+		curl_slist_append(headers, "Content-Type: application/json");
+		curl_slist_append(headers, "charsets: utf-8");
+
+		curl_easy_setopt(curl, CURLOPT_URL, readingsURL);
+		curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload);
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcrp/0.1");
+		printf("payload to send: %s - %s\n", readingsURL, payload );
+		curl_easy_perform(curl);
+		curl_slist_free_all(headers);
     }
     curl_easy_cleanup(curl);
 }
@@ -133,6 +138,8 @@ void *curl_handler( void *ptr )
     free(param);
 
     printf("%s - entering handler thread TID %d\n", __PRETTY_FUNCTION__, (pid_t)syscall(SYS_gettid));
+
+    printf("%s - %s\n", readingsURL, powerURL);
 
     pthread_mutex_init(&mutex, NULL);
     queue_item_init(&queue);
