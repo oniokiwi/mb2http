@@ -20,7 +20,7 @@
 #include "typedefs.h"
 
 #define POWER_TO_DELIVER_URL_DEFAULT "http://localhost:1880"
-#define SUBMIT_READINGS_URL_DEFAULT  "http://localhost/testpoint"
+#define SUBMIT_READINGS_URL_DEFAULT  "http://localhost:1880/testpoint"
 
 static char powerToDeliverURL[128];
 static char submitReadingsURL[128];
@@ -87,8 +87,6 @@ int main(int argc, char*argv[])
     int rc, opt, s = -1, port = MODBUS_DEFAULT_PORT;
     bool done = FALSE;
 
-    printf("%s - entering handler thread TID %d\n", __PRETTY_FUNCTION__, (pid_t)syscall(SYS_gettid));
-
     // setup some default URL's values
     strcpy(powerToDeliverURL, POWER_TO_DELIVER_URL_DEFAULT);
     strcpy(submitReadingsURL, SUBMIT_READINGS_URL_DEFAULT);
@@ -104,7 +102,6 @@ int main(int argc, char*argv[])
             break;
         case 'k':
         	strncpy(submitReadingsURL, optarg, strlen(optarg));
-        	printf("submitReadingsURL %s\n", submitReadingsURL);
             break;
 
         default:
@@ -158,8 +155,6 @@ int main(int argc, char*argv[])
     terminate2 = true;
     pthread_join(thread1, NULL);
     pthread_join(thread2, NULL);
-
-    printf("%s - exiting handler thread TID %d\n", __PRETTY_FUNCTION__, (pid_t)syscall(SYS_gettid));
 
     return 0;
 }

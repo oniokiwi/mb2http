@@ -39,7 +39,6 @@ static unsigned short stateOfCharge;
 
 int process_getStateOfCharge ()
 {
-    printf("%s \n", __PRETTY_FUNCTION__);
     uint16_t *address;
     uint16_t address_offset;
     int retval = MODBUS_SUCCESS; // need to figure out what this constant is
@@ -98,7 +97,6 @@ void parse_json(const char* str)
                 remove_character(buf,' ');
                 sscanf(buf,"{ \"timestamp\": %ld, \"powerDeliveredkW\": %f, \"stateOfCharge\": %f }", &t, &p, &s);
                 stateOfCharge = (uint16_t)s;
-                printf("stateOfCharge: %hu\n", stateOfCharge);
                 break;
         }
     }
@@ -142,7 +140,6 @@ static int ahc_echo(void * cls,
         if(*upload_data_size != 0)
         {
             length = *upload_data_size + 1;         // add space for null character
-            printf("upload_data_size = %d\n", length);
             *upload_data_size = 0;
             post->buff = malloc(length);
             post->buff[length] = '\0';             // ensure null termination
@@ -151,7 +148,6 @@ static int ahc_echo(void * cls,
         }
         else
         {
-            printf("%s %s\n",__PRETTY_FUNCTION__, post->buff);
             parse_json((const char*)post->buff);
             curl_sendReadings((const char*)post->buff, length);
             free(post->buff);
@@ -234,21 +230,18 @@ int process_query(modbus_pdu_t* mb)
     fc = mb->fcode;
     switch ( fc ){
     case MODBUS_FC_READ_HOLDING_REGISTERS:
-        printf("%s MODBUS_FC_READ_HOLDING_REGISTERS\n", __PRETTY_FUNCTION__);
         address = (mb->data[i++] * convert_bytes2word_value) + mb->data[i++]; // address
         value   = (mb->data[i++] * convert_bytes2word_value) + mb->data[i++]; // data
         retval  = process_handler(address, value);
         break;
 
     case MODBUS_FC_WRITE_SINGLE_REGISTER:
-        printf("%s MODBUS_FC_WRITE_SINGLE_REGISTER\n", __PRETTY_FUNCTION__);
         address = (mb->data[i++] * convert_bytes2word_value) + mb->data[i++]; // address
         value   = (mb->data[i++] * convert_bytes2word_value) + mb->data[i++]; // data
         retval  = process_handler(address, value);
         break;
 
     case MODBUS_FC_WRITE_MULTIPLE_REGISTERS:
-        printf("%s MODBUS_FC_WRITE_MULTIPLE_REGISTERS\n", __PRETTY_FUNCTION__);
         address = (mb->data[i++] * convert_bytes2word_value) + mb->data[i++]; // address
         count = (mb->data[i++] * convert_bytes2word_value) + mb->data[i++];   // register count
         i++;                                             // skip over byte count
@@ -257,7 +250,6 @@ int process_query(modbus_pdu_t* mb)
         break;
 
     case MODBUS_FC_WRITE_AND_READ_REGISTERS:
-        printf("%s MODBUS_FC_WRITE_AND_READ_REGISTERS\n", __PRETTY_FUNCTION__);
         address = (mb->data[i++] * convert_bytes2word_value) + mb->data[i++]; // address
         value   = (mb->data[i++] * convert_bytes2word_value) + mb->data[i++]; // data
         retval  = process_handler(address, value);
@@ -285,8 +277,6 @@ void *microhttpd_handler( void *ptr )
     free(param);
     struct MHD_Daemon *d;
 
-    printf("%s - entering handler thread TID %d\n", __PRETTY_FUNCTION__, (pid_t)syscall(SYS_gettid));
-
     d = MHD_start_daemon (MHD_USE_AUTO | MHD_USE_INTERNAL_POLLING_THREAD ,
                           8888,
                           NULL, NULL, &ahc_echo, NULL,
@@ -303,9 +293,6 @@ void *microhttpd_handler( void *ptr )
     while (*terminate == false)
     ;
     MHD_stop_daemon (d);
-
-    printf("%s - exiting handler thread TID %d\n", __PRETTY_FUNCTION__, (pid_t)syscall(SYS_gettid));
-
     return 0;
 }
 

@@ -12,7 +12,7 @@ void queue_item_init(queue_t* q)
 void queue_item_push(queue_t* q, void* pitem)
 {
     link_t *item = (link_t*)pitem;
-    printf("%s - %p\n", __PRETTY_FUNCTION__, item);
+    //printf("%s - %p\n", __PRETTY_FUNCTION__, item);
 
     if (q->front_ptr == NULL)
     {
@@ -36,7 +36,7 @@ void* queue_item_pop(queue_t* q)
         q->front_ptr = q->front_ptr->next;
         q->count--;
     }
-    printf("%s - %p\n", __PRETTY_FUNCTION__, item);
+    //printf("%s - %p\n", __PRETTY_FUNCTION__, item);
 
     return item;
 }

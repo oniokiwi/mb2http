@@ -34,7 +34,6 @@ void curl_sendPowerToDeliver(uint16_t power)
     queue_item_t* pdata;
     char *payload;
 
-    printf("%s - %d\n", __PRETTY_FUNCTION__, power );
     pdata = malloc(sizeof(queue_item_t));
     payload = malloc(MAX_POWER_PAYLOAD);
 
@@ -63,7 +62,6 @@ void curl_sendReadings(const char* readings, int length)
     queue_item_t* pdata;
     char *payload;
 
-    printf("%s - %s length: %d\n", __PRETTY_FUNCTION__, readings, length );
     pdata = malloc(sizeof(queue_item_t));
     payload = malloc(length);
 
@@ -91,7 +89,6 @@ void _send_text_plain(const char* payload)
     {
         char buf[payloadLength];
         sprintf(buf, "%s%s", powerURL, payload);
-        printf("payload to send: %s\n", buf );
 		curl_slist_append(headers, "Content-Type: text/plain");
 		curl_slist_append(headers, "charsets: utf-8");
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
@@ -120,7 +117,6 @@ void _send_application_json(const char* payload, int length)
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload);
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcrp/0.1");
-		printf("payload to send: %s - %s\n", readingsURL, payload );
 		curl_easy_perform(curl);
 		curl_slist_free_all(headers);
     }
@@ -136,10 +132,6 @@ void *curl_handler( void *ptr )
     strcpy(powerURL, param->powerToDeliverURL);
     strcpy(readingsURL, param->submitReadingsURL);
     free(param);
-
-    printf("%s - entering handler thread TID %d\n", __PRETTY_FUNCTION__, (pid_t)syscall(SYS_gettid));
-
-    printf("%s - %s\n", readingsURL, powerURL);
 
     pthread_mutex_init(&mutex, NULL);
     queue_item_init(&queue);
@@ -166,8 +158,6 @@ void *curl_handler( void *ptr )
         }
         sleep(1);
     }
-
-    printf("%s - exiting handler thread TID %d\n", __PRETTY_FUNCTION__, (pid_t)syscall(SYS_gettid));
 
     return 0;
 }
