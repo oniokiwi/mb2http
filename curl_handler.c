@@ -7,12 +7,15 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <sys/syscall.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 #include <curl/curl.h>
 #include "mb2http.h"
 #include "typedefs.h"
 #include "queue.h"
 #include "curl_handler.h"
 
+#define SUBMIT_READINGS_FILE      "readings.json"
 #define MAX_POWER_PAYLOAD 32
 
 
@@ -100,26 +103,43 @@ void _send_text_plain(const char* payload)
     curl_easy_cleanup(curl);
 }
 
+static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *stream)
+{
+  size_t retcode;
+  curl_off_t nread;
+
+  retcode = fread(ptr, size, nmemb, stream);
+  nread = (curl_off_t)retcode;
+  return retcode;
+}
 
 void _send_application_json(const char* payload, int length)
 {
-	struct curl_slist *headers = NULL;
+	FILE *fp;
+	struct stat file_info;
+    const char* file = SUBMIT_READINGS_FILE;
+    fp = fopen ( file, "wb");
+    if ( fp )
+    {
+    	fwrite(payload, length, 1, fp);
+        fclose(fp);
+    }
+	stat(file, &file_info);
+	fp = fopen(file, "rb");
 	curl = curl_easy_init();
-
     if (curl)
     {
-		curl_slist_append(headers, "Accept: application/json");
-		curl_slist_append(headers, "Content-Type: application/json");
-		curl_slist_append(headers, "charsets: utf-8");
+	    curl_easy_setopt(curl, CURLOPT_READFUNCTION, read_callback);
+	    curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+	    curl_easy_setopt(curl, CURLOPT_PUT, 1L);
+	    curl_easy_setopt(curl, CURLOPT_URL, readingsURL);
+	    curl_easy_setopt(curl, CURLOPT_READDATA, fp);
+	    curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,
+	                     (curl_off_t)file_info.st_size);
 
-		curl_easy_setopt(curl, CURLOPT_URL, readingsURL);
-		curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
-		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload);
-		curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcrp/0.1");
 		curl_easy_perform(curl);
-		curl_slist_free_all(headers);
     }
+    fclose(fp); /* close the local file */
     curl_easy_cleanup(curl);
 }
 

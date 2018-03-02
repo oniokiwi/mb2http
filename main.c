@@ -110,7 +110,7 @@ int main(int argc, char*argv[])
     }
     init();
 
-    printf("Test application - port (%d)\n", port);
+    printf("mb2http application - port (%d)\n", port);
 
     for (;;)
     {
