@@ -15,7 +15,7 @@
 #include "queue.h"
 #include "curl_handler.h"
 
-#define SUBMIT_READINGS_FILE      "readings.json"
+#define SUBMIT_READINGS_FILE      ".submitReadings.json"
 #define MAX_POWER_PAYLOAD 32
 
 
