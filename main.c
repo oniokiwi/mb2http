@@ -93,7 +93,8 @@ int main(int argc, char*argv[])
 
     while ((opt = getopt(argc, argv, "p:u:k:")) != -1)
     {
-        switch (opt) {
+        switch (opt)
+        {
         case 'p':
             port = atoi(optarg);
             break;
@@ -115,7 +116,7 @@ int main(int argc, char*argv[])
     for (;;)
     {
         ctx = modbus_new_tcp(NULL, port);
-
+        set_modbus_context(ctx);
         if ( ctx == NULL )
         {
             printf("Failed creating modbus context\n");
@@ -123,7 +124,6 @@ int main(int argc, char*argv[])
         }
         s = modbus_tcp_listen(ctx, 1);
         modbus_tcp_accept(ctx, &s);
-        modbus_set_debug(ctx, TRUE);
         done = FALSE;
         while (!done)
         {

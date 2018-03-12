@@ -35,7 +35,15 @@
 
 // Private data
 static modbus_mapping_t *mb_mapping;
+static modbus_t* ctx;
 static unsigned short stateOfCharge;
+
+int process_DebugEnable(uint16_t data)
+{
+	bool val =  data & 0x0001;
+	printf("%s - %s\n", __PRETTY_FUNCTION__, val?"TRUE":"FALSE");
+	modbus_set_debug(ctx, val);
+}
 
 int process_getStateOfCharge ()
 {
@@ -173,6 +181,10 @@ int  process_handler(uint16_t address, uint16_t data)
 {
     switch (address)
     {
+    case DebugEnable:
+    	process_DebugEnable(data);
+    	break;
+
     case StateOfCharge:
         process_getStateOfCharge();
         break;
@@ -295,4 +307,10 @@ void *microhttpd_handler( void *ptr )
     MHD_stop_daemon (d);
     return 0;
 }
+
+void set_modbus_context(modbus_t* pctx)
+{
+	ctx = pctx;
+}
+
 
